@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+        <property name="securityManager" ref="defaultWebSecurityManager"></property>
+        <property name="loginUrl" value="/login"></property>
+        <property name="successUrl" value="/toLogin"></property>
+        <property name="unauthorizedUrl" value="/404.html"></property>
+        <property name="filterChainDefinitions">
+            <value>
+                /login = anon
+                /toLogin = anon
+                /test = authOr["admin111","win"]
+                /* = authc
+            </value>
+        </property>
+        <!-- 授权过滤器 -->
+        <property name="filters">
+            <map>
+                <entry key="authOr" value-ref="customFilter"/>
+            </map>
+        </property>
+    </bean>
+
+    <bean class="com.heiketu.filter.CustomFilter" id="customFilter"/>
+
+    <bean id="defaultWebSecurityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+        <property name="sessionManager" ref="webSessionManager"/>
+        <property name="cacheManager" ref="cacheManager"/>
+        <property name="rememberMeManager" ref="cookieRememberMeManager"/>
+        <property name="realm" ref="realm"></property>
+    </bean>
+
+    <bean id="matcher" class="org.apache.shiro.authc.credential.HashedCredentialsMatcher">
+        <property name="hashAlgorithmName" value="md5"></property>
+        <property name="hashIterations" value="1"></property>
+    </bean>
+
+    <bean id="realm" class="com.heiketu.shiro.CustomRealm">
+        <property name="credentialsMatcher" ref="matcher"></property>
+    </bean>
+
+    <bean class="com.heiketu.shiro.CustomWebSessionManager" id="webSessionManager">
+        <property name="sessionDAO" ref="sessionDao"/>
+    </bean>
+
+    <bean class="com.heiketu.dao.CustomSessionDao" id="sessionDao"/>
+
+    <bean class="com.heiketu.shiro.CustomCacheManager" id="cacheManager"/>
+
+    <bean class="org.apache.shiro.web.mgt.CookieRememberMeManager" id="cookieRememberMeManager">
+        <property name="cookie" ref="cookieSimple"/>
+    </bean>
+
+    <bean class="org.apache.shiro.web.servlet.SimpleCookie" id="cookieSimple">
+        <constructor-arg value="rememberMe"/>
+        <property name="path" value="/shiro-web/toLogin"/>
+    </bean>
+
+</beans>

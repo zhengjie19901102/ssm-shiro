@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.heiketu.dao.PermissionMapper">
+
+
+    <select id="selectByRoleName" parameterType="java.lang.String" resultType="java.lang.String">
+        select permissons from role_permissions where 1=1
+        <if test="roleName != null">
+            and role_name
+            <foreach collection="roleName" item="role" separator="," open="in (" close=")">
+                #{role}
+            </foreach>
+        </if>
+    </select>
+</mapper>
